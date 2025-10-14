@@ -1,35 +1,60 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// src/App.jsx
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
-function App() {
-  const [count, setCount] = useState(0)
+import Login from './components/Login.jsx';
+import Signup from './components/Signup.jsx';
+import Dashboard from './pages/Dashboard.jsx';
+import Overview from './pages/Overview.jsx';
+import Expenses from './pages/Expenses.jsx';
+import Settings from './pages/Settings.jsx';
 
+import { ProtectedRoute } from './components/ProtectedRoute.jsx';
+import { PublicRoute } from './components/PublicRoute.jsx';
+
+
+const App = () => {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <Router>
+      <Routes>
+        {/* Public Routes */}
+        <Route
+          path="/"
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            <PublicRoute>
+              <Signup />
+            </PublicRoute>
+          }
+        />
 
-export default App
+        {/* Protected Dashboard */}
+        <Route
+          path="/dashboard/*"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Navigate to="overview" replace />} />
+          <Route path="overview" element={<Overview />} />
+          <Route path="expenses" element={<Expenses />} />
+          <Route path="settings" element={<Settings />} />
+        </Route>
+
+        {/* Catch all unknown routes */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
+  );
+};
+
+export default App;
