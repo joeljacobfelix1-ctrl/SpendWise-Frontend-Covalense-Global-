@@ -11,7 +11,7 @@ const Footer = () => {
         color: '#fff',
       }}
     >
-      © 2025 Your App Name
+      © 2025 SpendWise. | Developed by Joel Jacob Felix
     </div>
   );
 };

@@ -33,7 +33,7 @@ const Header = ({ collapsed, toggle }) => {
           color: '#6F42C1',
         }}
       >
-        Dashboard
+        SpendWise
       </span>
 
       <LogoutButton />

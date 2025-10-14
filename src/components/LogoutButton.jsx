@@ -13,7 +13,9 @@ const LogoutButton = () => {
     <button
       onClick={handleLogout}
       style={{
+        maxWidth: '100px',
         marginLeft: 'auto',
+        marginRight: '100px',
         padding: '6px 12px',
         border: 'none',
         backgroundColor: '#6F42C1',
