@@ -40,6 +40,7 @@ const Header = ({ collapsed, toggle, theme }) => {
         style={buttonStyle}
       />
       <span style={titleStyle}>SpendWise</span>
+      
       <LogoutButton />
     </div>
   );

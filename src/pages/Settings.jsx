@@ -22,6 +22,7 @@ const Settings = ({ currentTheme, setCurrentTheme }) => {
         fontWeight: 'bold'
       }}
     >
+      <p>Email Id:-{localStorage.mail_id}</p>
       <div
         style={{
           display: 'flex',

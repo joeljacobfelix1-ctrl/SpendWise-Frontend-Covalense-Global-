@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 
+
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -17,6 +18,7 @@ const Login = () => {
     try {
       const res = await api.post('/auth/login', { email, password });
       localStorage.setItem('token', res.data.token);
+      localStorage.setItem('mail_id', email);
       alert(res.data.message);
       navigate('/dashboard/overview');
     } catch (err) {

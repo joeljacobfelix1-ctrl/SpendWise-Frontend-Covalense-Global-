@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'; 
+import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Input, DatePicker, Select, message } from 'antd';
 import moment from 'moment';
 import { fetchExpenses, addExpense, editExpense, deleteExpense } from '../api/expenses';
@@ -9,6 +9,7 @@ const { Option } = Select;
 
 const Expenses = () => {
   const [expenses, setExpenses] = useState([]);
+  const [allExpenses, setAllExpenses] = useState([]); // store all unfiltered expenses
   const [loading, setLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingExpense, setEditingExpense] = useState(null);
@@ -16,14 +17,15 @@ const Expenses = () => {
   const [categoryFilter, setCategoryFilter] = useState('');
   const [form] = Form.useForm();
 
-  const categories = ['Food', 'Health', 'Travel', 'Shopping', 'Other'];
+  const predefinedCategories = ['Food', 'Health', 'Travel', 'Shopping'];
+  const categories = [...predefinedCategories, 'Other'];
 
-  // Load expenses from API
+  // Load all expenses from API once
   const loadExpenses = async () => {
     setLoading(true);
     try {
-      const data = await fetchExpenses({ month: monthFilter, category: categoryFilter });
-      setExpenses(data);
+      const data = await fetchExpenses();
+      setAllExpenses(data);
     } catch (err) {
       console.error(err);
       message.error('Failed to fetch expenses');
@@ -32,9 +34,35 @@ const Expenses = () => {
     }
   };
 
+  // Apply filters locally
+  useEffect(() => {
+    let filtered = [...allExpenses];
+
+    if (monthFilter) {
+      filtered = filtered.filter((exp) =>
+        moment(exp.date).format('YYYY-MM') === monthFilter
+      );
+    }
+
+    if (categoryFilter) {
+      if (categoryFilter === 'Other') {
+        // show all expenses not in predefined list
+        filtered = filtered.filter(
+          (exp) => !predefinedCategories.includes(exp.category)
+        );
+      } else {
+        filtered = filtered.filter(
+          (exp) => exp.category === categoryFilter
+        );
+      }
+    }
+
+    setExpenses(filtered);
+  }, [monthFilter, categoryFilter, allExpenses]);
+
   useEffect(() => {
     loadExpenses();
-  }, [monthFilter, categoryFilter]);
+  }, []);
 
   // Open modal to add/edit
   const openModal = (expense = null) => {
@@ -105,11 +133,11 @@ const Expenses = () => {
   const columns = [
     { title: 'Category', dataIndex: 'category', key: 'category' },
     { title: 'Amount', dataIndex: 'amount', key: 'amount' },
-    { 
-      title: 'Date', 
-      dataIndex: 'date', 
-      key: 'date', 
-      render: (text) => moment(text).format('YYYY-MM-DD') 
+    {
+      title: 'Date',
+      dataIndex: 'date',
+      key: 'date',
+      render: (text) => moment(text).format('YYYY-MM-DD'),
     },
     { title: 'Note', dataIndex: 'note', key: 'note' },
     {
@@ -117,8 +145,12 @@ const Expenses = () => {
       key: 'actions',
       render: (_, record) => (
         <div style={{ display: 'flex', gap: '8px' }}>
-          <Button type="primary" onClick={() => openModal(record)}>Edit</Button>
-          <Button type="danger" onClick={() => handleDelete(record.id)}>Delete</Button>
+          <Button type="primary" onClick={() => openModal(record)}>
+            Edit
+          </Button>
+          <Button danger onClick={() => handleDelete(record.id)}>
+            Delete
+          </Button>
         </div>
       ),
     },
@@ -137,7 +169,11 @@ const Expenses = () => {
         >
           {Array.from({ length: 12 }, (_, i) => {
             const month = (i + 1).toString().padStart(2, '0');
-            return <Option key={i} value={`2025-${month}`}>{moment(`2025-${month}-01`).format('MMMM YYYY')}</Option>;
+            return (
+              <Option key={i} value={`2025-${month}`}>
+                {moment(`2025-${month}-01`).format('MMMM YYYY')}
+              </Option>
+            );
           })}
         </Select>
 
@@ -148,10 +184,16 @@ const Expenses = () => {
           value={categoryFilter || undefined}
           onChange={(val) => setCategoryFilter(val)}
         >
-          {categories.map((cat) => <Option key={cat} value={cat}>{cat}</Option>)}
+          {categories.map((cat) => (
+            <Option key={cat} value={cat}>
+              {cat}
+            </Option>
+          ))}
         </Select>
 
-        <Button type="primary" onClick={() => openModal()}>Add Expense</Button>
+        <Button type="primary" onClick={() => openModal()}>
+          Add Expense
+        </Button>
         <Button onClick={handleExportCSV} style={{ backgroundColor: '#52c41a', color: 'white' }}>
           Download CSV
         </Button>
@@ -161,36 +203,81 @@ const Expenses = () => {
       <CategoryPieChart expenses={expenses} />
 
       {/* Expense Table */}
-      <Table 
-        columns={columns} 
-        dataSource={expenses} 
-        rowKey="id" 
-        loading={loading} 
-        pagination={{ pageSize: 5 }} 
+      <Table
+        columns={columns}
+        dataSource={expenses}
+        rowKey="id"
+        loading={loading}
+        pagination={{ pageSize: 5 }}
       />
 
       {/* Modal for add/edit */}
       <Modal
         title={editingExpense ? 'Edit Expense' : 'Add Expense'}
         open={isModalVisible}
-        onOk={handleModalOk}
         onCancel={() => setIsModalVisible(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setIsModalVisible(false)}>
+            Cancel
+          </Button>,
+          <Button
+            key="ok"
+            type="primary"
+            onClick={handleModalOk}
+            style={{ marginTop: '10px' , marginLeft: '-10px'}}
+          >
+            OK
+          </Button>,
+        ]}
       >
         <Form form={form} layout="vertical">
-          <Form.Item name="category" label="Category" rules={[{ required: true, message: 'Please enter category' }]}>
-            <Input />
+          <Form.Item
+            name="category"
+            label="Category"
+            rules={[{ required: true, message: 'Please enter category' }]}
+          >
+            <Input placeholder="e.g. Food, Travel, Health..." />
           </Form.Item>
-          <Form.Item name="amount" label="Amount" rules={[{ required: true, message: 'Please enter amount' }]}>
-            <Input type="number" />
+
+          <Form.Item
+            name="amount"
+            label="Amount"
+            rules={[{ required: true, message: 'Please enter amount' }]}
+          >
+            <Input
+              type="number"
+              placeholder="Enter amount"
+              inputMode="decimal"
+              onWheel={(e) => e.target.blur()} // prevents scroll changing value
+              style={{
+                MozAppearance: 'textfield', // remove Firefox arrows
+              }}
+              onKeyDown={(e) => {
+                if (['e', 'E', '+', '-'].includes(e.key)) e.preventDefault(); // prevent invalid chars
+              }}
+            />
           </Form.Item>
-          <Form.Item name="date" label="Date" rules={[{ required: true, message: 'Please select date' }]}>
-            <DatePicker style={{ width: '100%' }} />
+
+          <Form.Item
+            name="date"
+            label="Date"
+            rules={[{ required: true, message: 'Please select a date' }]}
+          >
+            <DatePicker
+              style={{ width: '100%' }}
+              format="YYYY-MM-DD"
+              allowClear
+              disabledDate={(current) => current && current > moment().endOf('day')}
+              getPopupContainer={(trigger) => trigger.parentNode} // prevents positioning bugs
+            />
           </Form.Item>
+
           <Form.Item name="note" label="Note">
-            <Input />
+            <Input placeholder="Optional note..." />
           </Form.Item>
         </Form>
       </Modal>
+
     </div>
   );
 };
