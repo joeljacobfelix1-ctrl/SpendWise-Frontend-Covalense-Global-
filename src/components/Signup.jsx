@@ -44,15 +44,15 @@ const Signup = () => {
       padding: '40px',
       borderRadius: '10px',
       boxShadow: darkMode
-        ? '0 4px 12px rgba(0,0,0,0.45)'
-        : '0 4px 12px rgba(0,0,0,0.1)',
+        ? '0 4px 12px #00000073'
+        : '0 4px 12px #0000001a',
       width: '100%',
       maxWidth: '400px',
       textAlign: 'center',
       color: darkMode ? '#f0f0f0' : '#333',
     },
     h2: {
-      color: darkMode ? '#66ccff' : 'rgb(111, 66, 193)',
+      color: darkMode ? '#66ccff' : '#6f42c1ff',
       marginBottom: '30px',
       fontSize: '1.8em',
     },
@@ -70,7 +70,7 @@ const Signup = () => {
       color: darkMode ? '#f0f0f0' : '#333',
     },
     button: {
-      backgroundColor: darkMode ? '#66ccff' : 'rgb(111, 66, 193)',
+      backgroundColor: darkMode ? '#66ccff' : '#6f42c1ff',
       color: '#fff',
       padding: '12px 20px',
       border: 'none',
