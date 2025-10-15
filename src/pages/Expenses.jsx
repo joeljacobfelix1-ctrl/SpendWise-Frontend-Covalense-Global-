@@ -1,13 +1,11 @@
-import React, { useState, useEffect, useMemo } from 'react'; 
+import React, { useState, useEffect } from 'react'; 
 import { Table, Button, Modal, Form, Input, DatePicker, Select, message } from 'antd';
 import moment from 'moment';
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { fetchExpenses, addExpense, editExpense, deleteExpense } from '../api/expenses';
 import { exportExpenses } from '../api/exportApi';
+import CategoryPieChart from '../components/CategoryPieChart';
 
 const { Option } = Select;
-
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AA00FF'];
 
 const Expenses = () => {
   const [expenses, setExpenses] = useState([]);
@@ -20,6 +18,7 @@ const Expenses = () => {
 
   const categories = ['Food', 'Health', 'Travel', 'Shopping', 'Other'];
 
+  // Load expenses from API
   const loadExpenses = async () => {
     setLoading(true);
     try {
@@ -37,6 +36,7 @@ const Expenses = () => {
     loadExpenses();
   }, [monthFilter, categoryFilter]);
 
+  // Open modal to add/edit
   const openModal = (expense = null) => {
     setEditingExpense(expense);
     if (expense) {
@@ -52,6 +52,7 @@ const Expenses = () => {
     setIsModalVisible(true);
   };
 
+  // Delete expense
   const handleDelete = async (id) => {
     try {
       await deleteExpense(id);
@@ -63,6 +64,7 @@ const Expenses = () => {
     }
   };
 
+  // Add or edit expense
   const handleModalOk = async () => {
     try {
       const values = await form.validateFields();
@@ -88,6 +90,7 @@ const Expenses = () => {
     }
   };
 
+  // Export CSV
   const handleExportCSV = async () => {
     try {
       await exportExpenses(monthFilter);
@@ -98,10 +101,16 @@ const Expenses = () => {
     }
   };
 
+  // Table columns
   const columns = [
     { title: 'Category', dataIndex: 'category', key: 'category' },
     { title: 'Amount', dataIndex: 'amount', key: 'amount' },
-    { title: 'Date', dataIndex: 'date', key: 'date', render: (text) => moment(text).format('YYYY-MM-DD') },
+    { 
+      title: 'Date', 
+      dataIndex: 'date', 
+      key: 'date', 
+      render: (text) => moment(text).format('YYYY-MM-DD') 
+    },
     { title: 'Note', dataIndex: 'note', key: 'note' },
     {
       title: 'Actions',
@@ -115,21 +124,9 @@ const Expenses = () => {
     },
   ];
 
-  // ⬇️ Aggregate expenses per category for PieChart
-  const pieData = useMemo(() => {
-    const result = {};
-    expenses.forEach((exp) => {
-      if (result[exp.category]) {
-        result[exp.category] += Number(exp.amount);
-      } else {
-        result[exp.category] = Number(exp.amount);
-      }
-    });
-    return Object.keys(result).map((key) => ({ name: key, value: result[key] }));
-  }, [expenses]);
-
   return (
     <div>
+      {/* Filters and buttons */}
       <div style={{ marginBottom: 16, display: 'flex', gap: '16px', alignItems: 'center' }}>
         <Select
           placeholder="Filter by month"
@@ -160,35 +157,22 @@ const Expenses = () => {
         </Button>
       </div>
 
-      {/* ⬇️ Pie Chart */}
-      <div style={{ width: '100%', height: 300, marginBottom: 16 }}>
-        <ResponsiveContainer>
-          <PieChart>
-            <Pie
-              data={pieData}
-              dataKey="value"
-              nameKey="name"
-              cx="50%"
-              cy="50%"
-              outerRadius={100}
-              fill="#8884d8"
-              label
-            >
-              {pieData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-              ))}
-            </Pie>
-            <Tooltip />
-            <Legend />
-          </PieChart>
-        </ResponsiveContainer>
-      </div>
+      {/* Pie Chart Component */}
+      <CategoryPieChart expenses={expenses} />
 
-      <Table columns={columns} dataSource={expenses} rowKey="id" loading={loading} pagination={{ pageSize: 5 }} />
+      {/* Expense Table */}
+      <Table 
+        columns={columns} 
+        dataSource={expenses} 
+        rowKey="id" 
+        loading={loading} 
+        pagination={{ pageSize: 5 }} 
+      />
 
+      {/* Modal for add/edit */}
       <Modal
         title={editingExpense ? 'Edit Expense' : 'Add Expense'}
-        visible={isModalVisible}
+        open={isModalVisible}
         onOk={handleModalOk}
         onCancel={() => setIsModalVisible(false)}
       >

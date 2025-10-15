@@ -7,7 +7,8 @@ import { Outlet } from 'react-router-dom';
 
 const { Sider, Content } = Layout;
 
-const Dashboard = () => {
+//theme is inherited from App.jsx just to bring dark mode to Header.jsx, other components get darkmode even without theme
+const Dashboard = ({ theme, onThemeChange }) => {
   const [collapsed, setCollapsed] = useState(false);
 
   const toggle = () => {
@@ -27,7 +28,7 @@ const Dashboard = () => {
       </Sider>
 
       <Layout>
-        <Header collapsed={collapsed} toggle={toggle} />
+        <Header collapsed={collapsed} toggle={toggle} theme={theme} />
         <Content style={{ margin: '16px', overflow: 'auto' }}>
           {/* Outlet will render Overview, Expenses, Settings here */}
           <Outlet />

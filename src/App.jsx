@@ -1,4 +1,3 @@
-// src/App.jsx
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
@@ -9,12 +8,10 @@ import Overview from './pages/Overview.jsx';
 import Expenses from './pages/Expenses.jsx';
 import Settings from './pages/Settings.jsx';
 
-
 import { ProtectedRoute } from './components/ProtectedRoute.jsx';
 import { PublicRoute } from './components/PublicRoute.jsx';
 
-
-const App = () => {
+const App = ({ theme, onThemeChange }) => {
   return (
     <Router>
       <Routes>
@@ -41,14 +38,22 @@ const App = () => {
           path="/dashboard/*"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <Dashboard theme={theme} onThemeChange={onThemeChange} />
             </ProtectedRoute>
           }
         >
           <Route index element={<Navigate to="overview" replace />} />
           <Route path="overview" element={<Overview />} />
           <Route path="expenses" element={<Expenses />} />
-          <Route path="settings" element={<Settings />} />
+          <Route
+            path="settings"
+            element={
+              <Settings
+                currentTheme={theme}
+                setCurrentTheme={onThemeChange}
+              />
+            }
+          />
         </Route>
 
         {/* Catch all unknown routes */}
