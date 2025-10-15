@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 
-
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -29,23 +28,11 @@ const Login = () => {
 
   // Styles
   const styles = {
-    header: {
-      backgroundColor: darkMode ? '#2c2c3c' : '#fff',
-      padding: '15px 0',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      textAlign: 'center',
-    },
-    websiteName: {
-      color: '#ff9900',
-      margin: 0,
-      fontSize: '1.8em',
-      fontWeight: 'bold',
-    },
     wrapper: {
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
-      minHeight: 'calc(100vh - 70px)',
+      minHeight: '100vh',
       padding: '20px',
       backgroundColor: darkMode ? '#1f1f1f' : '#f4f4f9',
     },
@@ -53,7 +40,9 @@ const Login = () => {
       backgroundColor: darkMode ? '#2c2c2c' : '#ffffff',
       padding: '40px',
       borderRadius: '10px',
-      boxShadow: darkMode ? '0 4px 12px rgba(0,0,0,0.45)' : '0 4px 12px rgba(0,0,0,0.1)',
+      boxShadow: darkMode
+        ? '0 4px 12px rgba(0,0,0,0.45)'
+        : '0 4px 12px rgba(0,0,0,0.1)',
       width: '100%',
       maxWidth: '400px',
       textAlign: 'center',
@@ -100,40 +89,38 @@ const Login = () => {
   };
 
   return (
-    <>
-      <header style={styles.header}>
-        <h1 style={styles.websiteName}>SpendWise</h1>
-      </header>
-      <div style={styles.wrapper}>
-        <div style={styles.formContainer}>
-          <h2 style={styles.h2}>Login</h2>
-          <form onSubmit={handleSubmit} style={styles.form}>
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              style={styles.input}
-              required
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              style={styles.input}
-              required
-            />
-            <button type="submit" style={styles.button}>
-              Login
-            </button>
-          </form>
-          <p style={styles.linkText}>
-            Don't have an account? <a href="/signup" style={styles.link}>Sign up</a>
-          </p>
-        </div>
+    <div style={styles.wrapper}>
+      <div style={styles.formContainer}>
+        <h2 style={styles.h2}>Login</h2>
+        <form onSubmit={handleSubmit} style={styles.form}>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            style={styles.input}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            style={styles.input}
+            required
+          />
+          <button type="submit" style={styles.button}>
+            Login
+          </button>
+        </form>
+        <p style={styles.linkText}>
+          Don’t have an account?{' '}
+          <a href="/signup" style={styles.link}>
+            Sign up
+          </a>
+        </p>
       </div>
-    </>
+    </div>
   );
 };
 
